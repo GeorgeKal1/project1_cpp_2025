@@ -29,6 +29,17 @@ public:
     int getID() { return ID; }
     int getRanking() { return ranking; }
     int getTimestamp() { return timestamp; }
+    
+
+    //helper function for node swapping
+    void swapWith(participant* other) { 
+        swap(fullname, other->fullname);
+        swap(ID, other->ID);
+        swap(ranking, other->ranking);
+        swap(origin, other->origin);
+        swap(timestamp, other->timestamp);
+        
+    }
 
     // Constructor helper function
     void parseData(const string& str);
@@ -48,11 +59,23 @@ public:
             head = head->next;
             delete temp;
         }
+        
     }  
-
+    int length() const {// function that returns the length of the list
+        participant* temp = head;
+        int num = 0;
+        while (temp != nullptr) {
+            num++;
+            temp = temp->next;
+        }
+    return num;
+    }
+    
 
     void readfile(string filename); // Method for the 1st option
     void readfileOrdered(string filename);// Method for the 2nd option
+    void sortlist();//method for the 3rd option
+    void deletebyid(int id);
     void findPlayer(string name1,string lname1);//method for the 6th option
     void printAll(); // Method for the 7th option
 };
@@ -97,7 +120,7 @@ void participant::parseData(const string &str) {
     origin = str.substr(start, end - start);
     start = end + 1;
 
-    // Extract timestamp (last value, no more commas expected)
+    // extract timestamp
     timestamp = stoi(str.substr(start));
 }
 
@@ -186,6 +209,73 @@ void participantList::readfileOrdered(string filename){
 
 }
 
+//this method implements the 3rd option(sort the list based on ranking descending)
+void participantList::sortlist() {
+    if (!head || !head->next) return;
+
+
+    participant* max;
+    participant* temp1 = head;
+    participant* temp2;
+
+
+    //the logic of selection sort is applied
+    while (temp1->next != nullptr) {
+        max= temp1;
+        temp2 = temp1->next;
+
+        while (temp2 != nullptr) { 
+            if (temp2->ranking > max->ranking) {
+                max = temp2;
+            }
+            temp2 = temp2->next;
+        }
+
+        // Swap participant data
+        temp1->swapWith(max);
+
+        temp1 = temp1->next;
+    }
+    cout<< "Successfully sorted"<<endl;
+}
+
+//this method implements the 4th option()
+void participantList::deletebyid(int id){
+    if (head==nullptr){
+        cout<<"The list is empty"<<endl;
+        return;
+    }
+
+    participant* temp;
+    participant* prev;
+    temp=head;
+    
+    if (temp->getID()==id){//case the right node is the first
+        head=temp->next;
+        delete temp;
+        cout<<"Successfuly deleted participant"<<endl;
+        return;
+    }
+
+    prev=temp;
+    temp=temp->next;
+    
+    while(temp!=nullptr){//search of the right node
+        if(temp->getID()==id){
+            prev->next=temp->next;
+            delete temp;
+            cout<<"Successfuly deleted participant"<<endl;
+            return;
+        }
+        prev=temp;
+        temp=temp->next;
+    }
+
+
+    cout<<"No participant with this ID"<<endl;
+
+}
+
 //function that implements the 6th option(finding player by name)
 void participantList::findPlayer(string name1, string lname1){
     participant *temp= head;
@@ -234,25 +324,14 @@ void participantList::printAll() {
 
 
 
-int main() {
-    participantList list;
-    string file = "contest_participants.txt";
-
-    list.readfileOrdered(file); 
-    
-    list.printAll(); 
-
-    list.findPlayer("Joseph","Nelson");
-    return 0;
-}
 
 
-int menu(){
+int menu(){//this method shows the message and returns the answer of the user
     int answ;
     cout << "1. Read Players \n" <<
             "2. Read Players sorted by ID \n"<<
             "3. Sort list by ranking of players \n"<<
-            "4. Delete layer by ID \n" <<
+            "4. Delete player by ID \n" <<
             "5. Delete complete list \n" <<
             "6. Search player by name \n" <<
             "7. Print list of players by current order \n"<<
@@ -260,5 +339,67 @@ int menu(){
             "9. Exit\n"<<endl;
     cout << "Give your answer: ";
     cin >> answ;
+    cout << "-------------------------"<<endl;
     return answ;
+}
+
+void actions(int answ,participantList& list1){//this method does the functions
+    string filename,name,lname;
+    int id;
+
+    switch (answ){
+    case 1:
+        
+        cout<<"Give the name of the file: ";
+        cin>> filename;
+        list1.readfile(filename);
+        break;
+    case 2:
+        cout<<"Give the name of the file: ";
+        cin>> filename;
+        list1.readfileOrdered(filename);
+        break;
+    case 3:
+        list1.sortlist();
+        break;
+    case 4:
+        cout<<"Give player Id: ";
+        cin >> id;
+        list1.deletebyid(id);
+        break;
+    case 5:
+        list1.~participantList();
+        cout<<"sucessfuly deleted list\n";
+        break;
+    case 6:
+        cout<<"Give first name: ";
+        cin>> name;
+        cout<<"Give last name: ";
+        cin>>lname;
+        cout<<"\n";
+        list1.findPlayer(name,lname);
+        break;
+    case 7:
+        list1.printAll();
+        break;
+        
+    case 8:
+        break;
+    case 9:
+        cout<<"goodbye";
+    default:
+        break;
+    }
+}
+
+int main() {
+    participantList list;
+    int answ=menu();
+    while(answ!=9){
+        actions(answ,list);
+        answ=menu();
+    }
+
+    
+    return 0;
 }
