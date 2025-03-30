@@ -17,7 +17,7 @@ private:
     
 
 public:
-    int position; // A variable that shows the position in the list
+    
     participant* next; // Pointer to the next node (participant)
     participant(const string& str) : next(nullptr) { // Constructor
         parseData(str);
