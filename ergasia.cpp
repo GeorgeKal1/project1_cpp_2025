@@ -13,11 +13,11 @@ private:
     int ranking;
     string origin;
     int timestamp;
-    int position; // A variable that shows the position in the list
+    
     
 
 public:
-
+    int position; // A variable that shows the position in the list
     participant* next; // Pointer to the next node (participant)
     participant(const string& str) : next(nullptr) { // Constructor
         parseData(str);
@@ -70,14 +70,16 @@ public:
         }
     return num;
     }
-    
+
+
 
     void readfile(string filename); // Method for the 1st option
     void readfileOrdered(string filename);// Method for the 2nd option
     void sortlist();//method for the 3rd option
-    void deletebyid(int id);
+    void deletebyid(int id);//method for 4th option
     void findPlayer(string name1,string lname1);//method for the 6th option
     void printAll(); // Method for the 7th option
+    void printbyTimestamporder();//meth0d f0r the 8th option
 };
 
 // This method gets a string of the elements of a participant and separates them into variables
@@ -322,9 +324,61 @@ void participantList::printAll() {
     }
 }
 
+//function that prints all participants sorted by timestamp;
+void participantList::printbyTimestamporder(){//analytical explanation of the function in documentation
+    
+    if (head==nullptr){
+        cout<<"Empty list"<<endl;
+        return;
+    }
+    
+    
+    int timestamptable[100];
+    participant* temp=head;
 
+    int swaptemp;
 
+    int j;
+    int i=0;
+    while (temp!=nullptr){
+        timestamptable[i++]=temp->timestamp;
+        temp=temp->next;
+    }
 
+    int n= i;//by the previous loop i has taken the size of the array
+
+    //bubblesort timestamp table
+    for(i=0;i<n-1;i++){
+        for(j=0;j<n - i -1; j++){
+            if(timestamptable[j]>timestamptable[j+1]){
+                swaptemp = timestamptable[j];
+                timestamptable[j] = timestamptable[j+1];
+                timestamptable[j+1]=swaptemp;
+            }
+        }
+    }
+
+    
+    //now print the players if timestamps match
+    for(i=0;i<n;i++){
+        temp=head;
+        while(temp!=nullptr){
+            if (temp->getTimestamp()== timestamptable[i]){
+                cout << "Name: " << temp->getName() <<
+                "\nID: " << temp->getID() <<
+                "\nRanking: " << temp->getRanking() <<
+                "\nOrigin: " << temp->getOrigin() <<
+                "\nTimestamp: " << temp->getTimestamp() << endl;
+                cout << "-----------------------------" << endl;
+                break;
+            }
+        temp= temp->next;
+        }
+        
+    }
+    
+
+}
 
 int menu(){//this method shows the message and returns the answer of the user
     int answ;
@@ -339,6 +393,13 @@ int menu(){//this method shows the message and returns the answer of the user
             "9. Exit\n"<<endl;
     cout << "Give your answer: ";
     cin >> answ;
+    while(cin.fail()){//error handling
+        cin.clear();
+        cin.ignore();
+        cerr<<"Invalid input. Please give number: ";
+        cin>> answ;        
+    }
+    
     cout << "-------------------------"<<endl;
     return answ;
 }
@@ -365,6 +426,13 @@ void actions(int answ,participantList& list1){//this method does the functions
     case 4:
         cout<<"Give player Id: ";
         cin >> id;
+        while(cin.fail()){//error handling
+            cin.clear();
+            cin.ignore();
+            cerr<<"Invalid input. Please give a number"<<endl;
+            cin>>id;
+            break;
+        }
         list1.deletebyid(id);
         break;
     case 5:
@@ -384,6 +452,7 @@ void actions(int answ,participantList& list1){//this method does the functions
         break;
         
     case 8:
+        list1.printbyTimestamporder();
         break;
     case 9:
         cout<<"goodbye";
